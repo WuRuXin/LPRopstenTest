@@ -4,6 +4,8 @@ import "./DappToken.sol";
 import "./IERC20.sol";
 
 contract TokenFarm {
+    using SafeMath for uint;
+
     string public name = "Dapp Token Farm";
     address public owner;
     DappToken public dappToken;
@@ -41,8 +43,8 @@ contract TokenFarm {
         // msg.sender账户向TokenFarm地址转移_amount个daiToken
         daiToken.transferFrom(msg.sender, address(this), _amount);
         // 存储质押信息
-        stakingBalance[msg.sender] = stakingBalance[msg.sender] + _amount;
-        issueBalance[msg.sender] = issueBalance[msg.sender] + _amount;
+        stakingBalance[msg.sender] = stakingBalance[msg.sender].add(_amount);
+        issueBalance[msg.sender] = issueBalance[msg.sender].add(_amount);
 
         // 判断是否已经转账过
         if(!hasStaked[msg.sender]) {
@@ -84,5 +86,19 @@ contract TokenFarm {
             issueBalance[msg.sender] = 0;
             dappToken.transfer(msg.sender, balance);
         }
+    }
+}
+
+library SafeMath {
+    function add(uint x, uint y) internal pure returns (uint z) {
+        require((z = x + y) >= x, 'ds-math-add-overflow');
+    }
+
+    function sub(uint x, uint y) internal pure returns (uint z) {
+        require((z = x - y) <= x, 'ds-math-sub-underflow');
+    }
+
+    function mul(uint x, uint y) internal pure returns (uint z) {
+        require(y == 0 || (z = x * y) / y == x, 'ds-math-mul-overflow');
     }
 }
